@@ -12,7 +12,8 @@ public class InstrumentationGrabber {
     private static volatile Instrumentation instrumentation;
 
     public static void premain(String agentArgs, Instrumentation inst) {
-        if (InstrumentationGrabber.instrumentation != null) throw new AssertionError("Already initialized");
+        if (InstrumentationGrabber.instrumentation != null)
+            return;//throw new AssertionError("Already initialized");
         InstrumentationGrabber.instrumentation = inst;
     }
 
