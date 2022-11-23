@@ -10,6 +10,11 @@
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.version>3.8.1</maven.compiler.version>
+		<maven.javadoc.version>3.2.0</maven.javadoc.version>
+		<maven.resources.version>3.2.0</maven.resources.version>
+		<maven.source.version>3.2.1</maven.source.version>
+		<maven.gpg.version>1.6</maven.gpg.version>
 	</properties>
 
 	<dependencies>
@@ -30,4 +35,94 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	<profiles>
+		<profile>
+			<id>doclint-java8-disable</id>
+			<activation>
+				<jdk>[1.8,)</jdk>
+			</activation>
+
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>${maven.javadoc.version}</version>
+						<configuration>
+							<doclint>none</doclint>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<!--
+            To sign (only needed for Maven Central), add this argument to the mvn command line, just after mvn...
+            -DperformRelease=true
+            -->
+			<id>release-sign-artifacts</id>
+			<activation>
+				<property>
+					<name>performRelease</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>${maven.gpg.version}</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>${maven.javadoc.version}</version>
+				<inherited>true</inherited>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<notimestamp>true</notimestamp>
+					<outputDirectory>docs/apidocs/</outputDirectory>
+					<debug>false</debug>
+					<minmemory>256m</minmemory>
+					<maxmemory>1024m</maxmemory>
+					<quiet>true</quiet>
+					<doctitle>${project.name} ${project.version}</doctitle>
+					<windowtitle>${project.name} ${project.version}</windowtitle>
+					<splitindex>true</splitindex>
+					<encoding>UTF-8</encoding>
+					<source>8</source>
+					<javadocVersion>17</javadocVersion>
+					<linksource>false</linksource>
+					<detectLinks>false</detectLinks>
+					<detectJavaApiLink>false</detectJavaApiLink>
+					<detectOfflineLinks>false</detectOfflineLinks>
+					<javadocExecutable>${env.JAVA_HOME}/bin/javadoc</javadocExecutable>
+				</configuration>
+			</plugin>
+
+		</plugins>
+	</build>
 </project>

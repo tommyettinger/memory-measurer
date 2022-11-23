@@ -1,33 +1,42 @@
 ObjectExplorer, by Dimitris Andreou (jim.andreou@gmail.com)
 
-= Introduction =
+# Introduction
 
-==[http://memory-measurer.googlecode.com/svn/trunk/dist/javadoc/index.html Javadocs]==
+## [Javadocs](http://tommyettinger.github.io/memory-measurer/apidocs/index.html)
 
-A small tool that is very handy when e.g. you design data structures and want to see how much memory each one uses. To do this, it uses a simple reflection-based object-traversing framework ([http://memory-measurer.googlecode.com/svn/trunk/dist/javadoc/objectexplorer/ObjectExplorer.html ObjectExplorer]). On it, it builds two facilities:
+A small tool that is very handy when e.g. you design data structures and want to see how much memory each one uses.
+To do this, it uses a simple reflection-based object-traversing framework
+([ObjectExplorer](https://github.com/tommyettinger/memory-measurer/blob/main/src/main/java/objectexplorer/ObjectExplorer.java)).
+On it, it builds two facilities:
 
-  * [http://memory-measurer.googlecode.com/svn/trunk/dist/javadoc/objectexplorer/MemoryMeasurer.html MemoryMeasurer], which can estimate the memory footprint of an object graph _in bytes_. This requires installing a javaagent when running the JVM, e.g. by passing {{{-javaagent:path/to/object-explorer.jar}}}. 
+  * [MemoryMeasurer](https://github.com/tommyettinger/memory-measurer/blob/main/src/main/java/objectexplorer/MemoryMeasurer.java),
+    which can estimate the memory footprint of an object graph _in bytes_. This requires installing a javaagent when
+    running the JVM, e.g. by passing `-javaagent:path/to/object-explorer.jar`. 
 
-  * [http://memory-measurer.googlecode.com/svn/trunk/dist/javadoc/objectexplorer/ObjectGraphMeasurer.html ObjectGraphMeasurer] does not need a javaagent, and can also give a much more qualitative measurement than !MemoryMeasurer - it counts the number of objects, references, and primitives (of each kind) that an object graph entails.
+  * [ObjectGraphMeasurer](https://github.com/tommyettinger/memory-measurer/blob/main/src/main/java/objectexplorer/ObjectGraphMeasurer.java)
+    does not need a javaagent, and can also give a much more qualitative measurement than !MemoryMeasurer - it counts
+    the number of objects, references, and primitives (of each kind) that an object graph entails.
 
-Also of interest is the synergy with this project (of yours truly) : [http://code.google.com/p/jbenchy/ JBenchy] 
+Another item of interest is the synergy with this project (Dimitris Andreou) : [JBenchy](http://code.google.com/p/jbenchy/)
+(although the link is probably not great...) 
 
 Put together, they allow you to easily and systematically run and analyze benchmarks regarding data structures.
 
-== How to use ==
+## How to use
 
 An extremely simple example:
 
-{{{
+```java
 long memory = MemoryMeasurer.measureBytes(new HashMap());
-}}}
+```
 
 or
 
-{{{
+```java
 Footprint footprint = ObjectGraphMeasurer.measure(new HashMap());
-}}}
+```
 
 Quick tip: To use the MemoryMeasurer (to measure the footprint of an object
-graph in bytes), this parameter needs to be passed to th VM:
--javaagent:path/to/object-explorer.jar
+graph in bytes), this parameter needs to be passed to the VM:
+
+`-javaagent:path/to/object-explorer.jar`
