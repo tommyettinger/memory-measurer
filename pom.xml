@@ -36,7 +36,7 @@
 		<dependency>
 			<groupId>com.github.tommyettinger</groupId>
 			<artifactId>jdkgdxds</artifactId>
-			<version>de8e3c3520</version>
+			<version>a9dbc2ba0d</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
