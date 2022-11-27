@@ -1,4 +1,4 @@
-#summary This is the cost per element in major data structures offered by Java and Guava (r11)].
+#summary This is the cost per element in major data structures offered by Java and Guava (r11).
 
 = Cost _per element/entry_ in various well-known Java/Guava data structures =
 

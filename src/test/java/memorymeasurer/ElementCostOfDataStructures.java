@@ -1,5 +1,6 @@
 package memorymeasurer;
 
+import com.github.tommyettinger.ds.*;
 import com.google.common.base.*;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -7,6 +8,7 @@ import com.google.common.collect.*;
 import objectexplorer.MemoryMeasurer;
 import objectexplorer.ObjectGraphMeasurer;
 import objectexplorer.ObjectGraphMeasurer.Footprint;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
@@ -20,17 +22,24 @@ public class ElementCostOfDataStructures {
     caption("  Basic Lists, Sets, Maps ");
 
     analyze(new CollectionPopulator(defaultSupplierFor(ArrayList.class)));
+    analyze(new CollectionPopulator(defaultSupplierFor(ObjectList.class)));
     analyze(new ImmutableListPopulator());
 
     analyze(new CollectionPopulator(defaultSupplierFor(HashSet.class)));
+    analyze(new CollectionPopulator(defaultSupplierFor(LinkedHashSet.class)));
+    analyze(new CollectionPopulator(defaultSupplierFor(ObjectSet.class)));
+    analyze(new CollectionPopulator(defaultSupplierFor(ObjectOrderedSet.class)));
+    analyze(new CollectionPopulator(defaultSupplierFor(NumberedSet.class)));
     analyze(new ImmutableSetPopulator());
 
     analyze(new CollectionPopulator(defaultSupplierFor(TreeSet.class), EntryFactories.COMPARABLE));
     analyze(new ImmutableSortedSetPopulator());
 
     analyze(new MapPopulator(defaultSupplierFor(HashMap.class)));
-    analyze(new ImmutableMapPopulator());
     analyze(new MapPopulator(defaultSupplierFor(LinkedHashMap.class)));
+    analyze(new MapPopulator(defaultSupplierFor(ObjectObjectMap.class)));
+    analyze(new MapPopulator(defaultSupplierFor(ObjectObjectOrderedMap.class)));
+    analyze(new ImmutableMapPopulator());
 
     analyze(new MapPopulator(defaultSupplierFor(TreeMap.class), EntryFactories.COMPARABLE));
     analyze(new ImmutableSortedMapPopulator());
@@ -143,8 +152,19 @@ public class ElementCostOfDataStructures {
     analyze(new MapPopulator(defaultSupplierFor(WeakHashMap.class)));
     analyze(new CollectionPopulator(defaultSupplierFor(LinkedList.class)));
     analyze(new CollectionPopulator(defaultSupplierFor(ArrayDeque.class)));
-    analyze(new CollectionPopulator(defaultSupplierFor(LinkedHashSet.class)));
+    analyze(new CollectionPopulator(defaultSupplierFor(ObjectDeque.class)));
     analyze(new CollectionPopulator(defaultSupplierFor(PriorityQueue.class), EntryFactories.COMPARABLE));
+    analyze(new CollectionPopulator(defaultSupplierFor(BinaryHeap.class), new EntryFactory() {
+      @Override
+      public Class<?> getEntryType() {
+        return NodeItem.class;
+      }
+
+      @Override
+      public @Nullable NodeItem get() {
+        return new NodeItem();
+      }
+    }));
     analyze(new CollectionPopulator(defaultSupplierFor(PriorityBlockingQueue.class), EntryFactories.COMPARABLE));
     analyze(new CollectionPopulator(defaultSupplierFor(ConcurrentSkipListSet.class), EntryFactories.COMPARABLE));
     analyze(new CollectionPopulator(defaultSupplierFor(CopyOnWriteArrayList.class)));
@@ -685,4 +705,11 @@ class ComparableElement extends Element implements Comparable {
 class DelayedElement extends Element implements Delayed {
   public long getDelay(TimeUnit unit) { return 0; }
   public int compareTo(Delayed o) { if (this == o) return 0; else return 1; }
+}
+
+class NodeItem extends BinaryHeap.Node {
+  public NodeItem() {
+    super(0);
+    value = Float.intBitsToFloat(System.identityHashCode(this) & 0xFEFFFFFF);
+  }
 }
