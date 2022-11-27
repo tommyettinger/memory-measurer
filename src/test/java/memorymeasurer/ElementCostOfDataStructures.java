@@ -5,6 +5,7 @@ import com.google.common.base.*;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.collect.*;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import objectexplorer.MemoryMeasurer;
 import objectexplorer.ObjectGraphMeasurer;
 import objectexplorer.ObjectGraphMeasurer.Footprint;
@@ -23,12 +24,15 @@ public class ElementCostOfDataStructures {
 
     analyze(new CollectionPopulator(defaultSupplierFor(ArrayList.class)));
     analyze(new CollectionPopulator(defaultSupplierFor(ObjectList.class)));
+    analyze(new CollectionPopulator(defaultSupplierFor(it.unimi.dsi.fastutil.objects.ObjectArrayList.class)));
     analyze(new ImmutableListPopulator());
 
     analyze(new CollectionPopulator(defaultSupplierFor(HashSet.class)));
     analyze(new CollectionPopulator(defaultSupplierFor(LinkedHashSet.class)));
     analyze(new CollectionPopulator(defaultSupplierFor(ObjectSet.class)));
     analyze(new CollectionPopulator(defaultSupplierFor(ObjectOrderedSet.class)));
+    analyze(new CollectionPopulator(defaultSupplierFor(it.unimi.dsi.fastutil.objects.ObjectOpenHashSet.class)));
+    analyze(new CollectionPopulator(defaultSupplierFor(it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet.class)));
     analyze(new CollectionPopulator(defaultSupplierFor(NumberedSet.class)));
     analyze(new ImmutableSetPopulator());
 
@@ -39,9 +43,14 @@ public class ElementCostOfDataStructures {
     analyze(new MapPopulator(defaultSupplierFor(LinkedHashMap.class)));
     analyze(new MapPopulator(defaultSupplierFor(ObjectObjectMap.class)));
     analyze(new MapPopulator(defaultSupplierFor(ObjectObjectOrderedMap.class)));
+    analyze(new MapPopulator(defaultSupplierFor(it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap.class)));
+    analyze(new MapPopulator(defaultSupplierFor(it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap.class)));
+    analyze(new MapPopulator(defaultSupplierFor(it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap.class)));
     analyze(new ImmutableMapPopulator());
 
     analyze(new MapPopulator(defaultSupplierFor(TreeMap.class), EntryFactories.COMPARABLE));
+    analyze(new MapPopulator(defaultSupplierFor(it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap.class), EntryFactories.COMPARABLE));
+    analyze(new MapPopulator(defaultSupplierFor(it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap.class), EntryFactories.COMPARABLE));
     analyze(new ImmutableSortedMapPopulator());
 
     caption("ConcurrentHashMap/MapMaker");
@@ -153,6 +162,11 @@ public class ElementCostOfDataStructures {
     analyze(new CollectionPopulator(defaultSupplierFor(LinkedList.class)));
     analyze(new CollectionPopulator(defaultSupplierFor(ArrayDeque.class)));
     analyze(new CollectionPopulator(defaultSupplierFor(ObjectDeque.class)));
+    analyze(new FastUtilPriorityQueuePopulator(defaultSupplierFor(it.unimi.dsi.fastutil.objects.ObjectHeapPriorityQueue.class)));
+    analyze(new FastUtilPriorityQueuePopulator(defaultSupplierFor(it.unimi.dsi.fastutil.objects.ObjectArrayPriorityQueue.class)));
+
+
+
     analyze(new CollectionPopulator(defaultSupplierFor(PriorityQueue.class), EntryFactories.COMPARABLE));
     analyze(new CollectionPopulator(defaultSupplierFor(BinaryHeap.class), new EntryFactory() {
       @Override
@@ -171,7 +185,6 @@ public class ElementCostOfDataStructures {
     analyze(new CollectionPopulator(defaultSupplierFor(CopyOnWriteArraySet.class)));
     analyze(new CollectionPopulator(defaultSupplierFor(DelayQueue.class), EntryFactories.DELAYED));
     analyze(new CollectionPopulator(defaultSupplierFor(LinkedBlockingQueue.class)));
-    analyze(new CollectionPopulator(defaultSupplierFor(LinkedBlockingDeque.class)));
 
     caption("  Synchronization Structures");
 
@@ -711,5 +724,19 @@ class NodeItem extends BinaryHeap.Node {
   public NodeItem() {
     super(0);
     value = Float.intBitsToFloat(System.identityHashCode(this) & 0xFEFFFFFF);
+  }
+}
+
+class FastUtilPriorityQueuePopulator extends MutablePopulator<it.unimi.dsi.fastutil.PriorityQueue> {
+  FastUtilPriorityQueuePopulator(Supplier<? extends it.unimi.dsi.fastutil.PriorityQueue> collectionFactory) {
+    super(collectionFactory, EntryFactories.COMPARABLE);
+  }
+
+  FastUtilPriorityQueuePopulator(Supplier<? extends it.unimi.dsi.fastutil.PriorityQueue> collectionFactory, EntryFactory entryFactory) {
+    super(collectionFactory, EntryFactories.COMPARABLE);
+  }
+
+  public void addEntry(it.unimi.dsi.fastutil.PriorityQueue collection) {
+    collection.enqueue(newEntry());
   }
 }
