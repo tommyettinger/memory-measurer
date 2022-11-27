@@ -1,70 +1,18 @@
 package memorymeasurer;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.base.Supplier;
-import com.google.common.base.Throwables;
+import com.google.common.base.*;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ConcurrentHashMultiset;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.ImmutableBiMap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.ImmutableMultiset;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSetMultimap;
-import com.google.common.collect.ImmutableSortedMap;
-import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.LinkedHashMultiset;
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.MapMaker;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multiset;
-import com.google.common.collect.Table;
-import com.google.common.collect.TreeBasedTable;
-import com.google.common.collect.TreeMultimap;
-import com.google.common.collect.TreeMultiset;
-import java.lang.reflect.Constructor;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.WeakHashMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.DelayQueue;
-import java.util.concurrent.Delayed;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import com.google.common.collect.*;
 import objectexplorer.MemoryMeasurer;
 import objectexplorer.ObjectGraphMeasurer;
 import objectexplorer.ObjectGraphMeasurer.Footprint;
+
+import java.lang.reflect.Constructor;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class ElementCostOfDataStructures {
   public static void main(String[] args) throws Exception {
@@ -91,36 +39,36 @@ public class ElementCostOfDataStructures {
 
     analyze(new MapPopulator(defaultSupplierFor(ConcurrentHashMap.class)));
     analyze("MapMaker", new MapPopulator(new Supplier<Map>() { public Map get() { return
-            CacheBuilder.newBuilder().build().asMap(); } }));
+      CacheBuilder.newBuilder().build().asMap(); } }));
     analyze("MapMaker_Expires", new MapPopulator(new Supplier<Map>() { public Map get() { return
-            CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.DAYS).build().asMap(); } }));
+      CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.DAYS).build().asMap(); } }));
     analyze("MapMaker_Evicts", new MapPopulator(new Supplier<Map>() { public Map get() { return
-            CacheBuilder.newBuilder().maximumSize(1000000).build().asMap(); } }));
+      CacheBuilder.newBuilder().maximumSize(1000000).build().asMap(); } }));
     analyze("MapMaker_Expires_Evicts", new MapPopulator(new Supplier<Map>() { public Map get() { return
       CacheBuilder.newBuilder().maximumSize(1000000).expireAfterWrite(3, TimeUnit.DAYS).build().asMap(); } }));
-    analyze("MapMaker_SoftKeys", new MapPopulator(new Supplier<Map>() { public Map get() { return
+    analyze("MapMaker_WeakKeys", new MapPopulator(new Supplier<Map>() { public Map get() { return
       CacheBuilder.newBuilder().weakKeys().build().asMap(); } }));
     analyze("MapMaker_SoftValues", new MapPopulator(new Supplier<Map>() { public Map get() { return
       CacheBuilder.newBuilder().softValues().build().asMap(); } }));
-    analyze("MapMaker_SoftKeysValues", new MapPopulator(new Supplier<Map>() { public Map get() { return
+    analyze("MapMaker_WeakKeysSoftValues", new MapPopulator(new Supplier<Map>() { public Map get() { return
       CacheBuilder.newBuilder().weakKeys().softValues().build().asMap(); } }));
-    analyze("MapMaker_Evicts_SoftKeys", new MapPopulator(new Supplier<Map>() { public Map get() { return
+    analyze("MapMaker_Evicts_WeakKeys", new MapPopulator(new Supplier<Map>() { public Map get() { return
       CacheBuilder.newBuilder().maximumSize(1000000).weakKeys().build().asMap(); } }));
     analyze("MapMaker_Evicts_SoftValues", new MapPopulator(new Supplier<Map>() { public Map get() { return
       CacheBuilder.newBuilder().maximumSize(1000000).softValues().build().asMap(); } }));
-    analyze("MapMaker_Evicts_SoftKeysValues", new MapPopulator(new Supplier<Map>() { public Map get() { return
+    analyze("MapMaker_Evicts_WeakKeysSoftValues", new MapPopulator(new Supplier<Map>() { public Map get() { return
       CacheBuilder.newBuilder().maximumSize(1000000).weakKeys().softValues().build().asMap(); } }));
-    analyze("MapMaker_Expires_SoftKeys", new MapPopulator(new Supplier<Map>() { public Map get() { return
+    analyze("MapMaker_Expires_WeakKeys", new MapPopulator(new Supplier<Map>() { public Map get() { return
       CacheBuilder.newBuilder().expireAfterWrite(3, TimeUnit.DAYS).weakKeys().build().asMap(); } }));
     analyze("MapMaker_Expires_SoftValues", new MapPopulator(new Supplier<Map>() { public Map get() { return
       CacheBuilder.newBuilder().expireAfterWrite(3, TimeUnit.DAYS).softValues().build().asMap(); } }));
-    analyze("MapMaker_Expires_SoftKeysValues", new MapPopulator(new Supplier<Map>() { public Map get() { return
+    analyze("MapMaker_Expires_WeakKeysSoftValues", new MapPopulator(new Supplier<Map>() { public Map get() { return
       CacheBuilder.newBuilder().expireAfterWrite(3, TimeUnit.DAYS).weakKeys().softValues().build().asMap(); } }));
-    analyze("MapMaker_Expires_Evicts_SoftKeys", new MapPopulator(new Supplier<Map>() { public Map get() { return
+    analyze("MapMaker_Expires_Evicts_WeakKeys", new MapPopulator(new Supplier<Map>() { public Map get() { return
       CacheBuilder.newBuilder().maximumSize(1000000).expireAfterWrite(3, TimeUnit.DAYS).weakKeys().build().asMap(); } }));
     analyze("MapMaker_Expires_Evicts_SoftValues", new MapPopulator(new Supplier<Map>() { public Map get() { return
       CacheBuilder.newBuilder().maximumSize(1000000).expireAfterWrite(3, TimeUnit.DAYS).softValues().build().asMap(); } }));
-    analyze("MapMaker_Expires_Evicts_SoftKeysValues", new MapPopulator(new Supplier<Map>() { public Map get() { return
+    analyze("MapMaker_Expires_Evicts_WeakKeysSoftValues", new MapPopulator(new Supplier<Map>() { public Map get() { return
       CacheBuilder.newBuilder().maximumSize(1000000).expireAfterWrite(3, TimeUnit.DAYS).weakKeys().softValues().build().asMap(); } }));
 
     caption("        Multisets         ");
@@ -716,22 +664,22 @@ interface EntryFactory extends Supplier {
 enum EntryFactories implements EntryFactory {
   REGULAR {
     public Class<?> getEntryType() { return Element.class; }
-    public Object get() { return new Element(); }
+    public Element get() { return new Element(); }
   },
   COMPARABLE {
     public Class<?> getEntryType() { return ComparableElement.class; }
-    public Object get() { return new ComparableElement(); }
+    public ComparableElement get() { return new ComparableElement(); }
   },
   DELAYED {
     public Class<?> getEntryType() { return DelayedElement.class; }
-    public Object get() { return new DelayedElement(); }
+    public DelayedElement get() { return new DelayedElement(); }
   };
 }
 
 class Element { }
 
 class ComparableElement extends Element implements Comparable {
-  public int compareTo(Object o) { if (this == o) return 0; else return 1; }
+  public int compareTo(Object o) { return Integer.compare(hashCode(), o.hashCode()); }
 }
 
 class DelayedElement extends Element implements Delayed {
