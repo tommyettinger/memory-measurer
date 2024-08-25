@@ -5,6 +5,7 @@ import com.google.common.base.*;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.collect.*;
+import com.google.common.util.concurrent.AtomicDouble;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import objectexplorer.MemoryMeasurer;
 import objectexplorer.ObjectGraphMeasurer;
@@ -14,6 +15,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -191,6 +195,13 @@ public class ElementCostOfDataStructures {
     analyzeOneOff("ReentrantLock", new ReentrantLock(true));
     analyzeOneOff("Semaphore", new Semaphore(1, true));
     analyzeOneOff("ReadWriteLock", new ReentrantReadWriteLock(true));
+
+    caption("  Atomic Primitives");
+
+    analyzeOneOff("AtomicBoolean", new AtomicBoolean(true));
+    analyzeOneOff("AtomicInteger", new AtomicInteger(1));
+    analyzeOneOff("AtomicDouble", new AtomicDouble(1));
+    analyzeOneOff("AtomicLong", new AtomicLong(1));
   }
 
   private static void caption(String caption) {
