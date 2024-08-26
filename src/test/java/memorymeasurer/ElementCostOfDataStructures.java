@@ -1,5 +1,6 @@
 package memorymeasurer;
 
+import com.github.tommyettinger.digital.Base;
 import com.github.tommyettinger.ds.*;
 import com.google.common.base.*;
 import com.google.common.cache.CacheBuilder;
@@ -23,6 +24,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class ElementCostOfDataStructures {
   public static void main(String[] args) throws Exception {
+    Utilities.setDefaultLoadFactor(0.75f);
+
     caption(String.format("    %2s-bit architecture   ", System.getProperty("sun.arch.data.model")));
     caption("  Basic Lists, Sets, Maps ");
 
@@ -37,9 +40,21 @@ public class ElementCostOfDataStructures {
     analyze(new CollectionPopulator(defaultSupplierFor(ObjectOrderedSet.class)));
     analyze(new CollectionPopulator(defaultSupplierFor(it.unimi.dsi.fastutil.objects.ObjectOpenHashSet.class)));
     analyze(new CollectionPopulator(defaultSupplierFor(it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet.class)));
+    analyze(new CollectionPopulator(defaultSupplierFor(it.unimi.dsi.fastutil.objects.ObjectArraySet.class)));
     analyze(new CollectionPopulator(defaultSupplierFor(NumberedSet.class)));
     analyze(new ImmutableSetPopulator());
 
+      analyze(new CollectionPopulator(defaultSupplierFor(CaseInsensitiveSet.class), new EntryFactory() {
+        final int[] index = {0};
+        public Class<?> getEntryType() {
+          return String.class;
+        }
+
+        public String get() {
+          return Base.BASE16.unsigned(index[0]++);
+        }
+      }));
+      analyze(new CollectionPopulator(defaultSupplierFor(CaseInsensitiveOrderedSet.class), EntryFactories.STRING));
     analyze(new CollectionPopulator(defaultSupplierFor(TreeSet.class), EntryFactories.COMPARABLE));
     analyze(new ImmutableSortedSetPopulator());
 
@@ -717,7 +732,17 @@ enum EntryFactories implements EntryFactory {
   DELAYED {
     public Class<?> getEntryType() { return DelayedElement.class; }
     public DelayedElement get() { return new DelayedElement(); }
-  };
+  },
+  STRING {
+    final int[] index = {0};
+    public Class<?> getEntryType() {
+      return String.class;
+    }
+
+    public String get() {
+      return Base.BASE16.unsigned(index[0]++);
+    }
+  }
 }
 
 class Element { }
